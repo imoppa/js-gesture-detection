@@ -14,30 +14,41 @@
 
 
 <body>
+    <!-- App screens -->
     <div id="container">
-        <div id="profile" class="activePage">
-            <ul id="outputImg"></ul>
-            <ul id="outputP"></ul>
+
+        <!-- Profile page -->
+        <div id="profile-page" class="active-page">
+            <div>dummy text1</div>
         </div>
 
-        <div id="favorites" class="inactivePage">
-            <ul id="favoriteProfiles">
-            </ul>
+        <!-- Favorite Page -->
+        <div id="favorite-page" class="inactive-page">
+            <div>dummy text</div>
         </div>
     </div>
+    <!---->
 
     <!-- Tab Navigation Start -->
     <nav class="bar bar-tab">
+        <!-- Tab 1: Profile -->
         <div id="profTab" class="tab-item">
             <span class="icon icon-person"></span>
             <span class="tab-label">Profile</span>
         </div>
 
+        <!-- Tab 2: Favorites -->
         <div id="favTab" class="tab-item">
             <span class="icon icon-star-filled"></span>
             <span class="tab-label">Favorites</span>
         </div>
     </nav>
+    <!---->
+
+    <!-- JavaScript Dependencies -->
+    <script src="js/lib/zingtouch-1.0.0.min.js"></script>
+    <script src="js/lib/push.js"></script>
+    <script src="js/lib/ratchet.min.js"></script>
     <!---->
 
     <!-- Main JavaScript -->
