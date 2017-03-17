@@ -63,7 +63,8 @@ let tundraApp = {
       });
 
   },
-  
+
+  // Step 5: define a function to add gestures to each profile card
   showProfile: function () {
     let profileCard       = document.createElement('div');
     profileCard.className = 'profile-card';
@@ -84,9 +85,28 @@ let tundraApp = {
     profilePage.appendChild(profileCard);
 
     tundraApp.profileIndex++;
+    tundraApp.addGesture();
+  },
+
+  // Step 6: define a function to add gesture 
+  addGesture: function () {
+    let profilePage = document.querySelector('#profile-page');
+    let activeRegion = new ZingTouch.Region(profilePage);
+
+    let gestureObject = document.querySelector('.profile-card');
+    activeRegion.bind(gestureObject, 'pan', function (ev) {
+      activeRegion.unregister('pan');
+
+      let touchedDegree = ev.detail.data[0];
+      console.log(touchedDegree);
+      if (touchedDegree.directionFromOrigin > 270 || touchedDegree.directionFromOrigin < 90) {
+        console.log('right');
+      } else {
+        console.log('left');
+      }
+    });
+
   }
-  // Step 5: define a function to add gestures to each profile card
-  // Step 6:
 };
 
 document.addEventListener('DOMContentLoaded', tundraApp.init);
