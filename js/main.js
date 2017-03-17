@@ -26,6 +26,7 @@ let tundraApp = {
 
 
     // Step 6: call the function you defined in Step 5 to fetch profile data
+    tundraApp.checkLocalStorage('tundra', tundraApp.favorites);
     tundraApp.getProfiles();
     console.log(tundraApp.profiles);
 
@@ -44,6 +45,8 @@ let tundraApp = {
     } else {
         profilePage.className  = 'inactive-page';
         favoritePage.className = 'active-page';
+
+        tundraApp.showFavorites();
     }
   },
 
@@ -91,40 +94,63 @@ let tundraApp = {
 
   // Step 6: define a function to add gesture 
   addGesture: function () {
-    let profilePage = document.querySelector('#profile-page');
-    let activeRegion = new ZingTouch.Region(profilePage);
-
+    let profilePage   = document.querySelector('#profile-page');
+    let activeRegion  = new ZingTouch.Region(profilePage);
     let gestureObject = document.querySelector('.profile-card');
     activeRegion.bind(gestureObject, 'pan', function (ev) {
       activeRegion.unregister('pan');
 
-      // Devide by degrees: right or left
+      // Divided by degrees: right or left
       let touchedDegree = ev.detail.data[0];
-      console.log(touchedDegree);
       if (touchedDegree.directionFromOrigin > 270 || touchedDegree.directionFromOrigin < 90) {
-        // tundraApp.checkSwipeCount();
-        console.log('right');
-        // add it to local storage
-        tundraApp.saveProfile();
 
+        // Swiped Right
+        tundraApp.saveProfile();
       } else {
-        // tundraApp.checkSwipeCount();
-        console.log('left');
-        // delete it
+
+        // Swiped Left
         tundraApp.deleteProfile();
       }
     });
   },
 
   saveProfile: function () {
-    tundraApp.favorites.push(tundraApp.profiles[tundraApp.profileIndex]);
-    localStorage.setItem('tundra', JSON.stringify(tundraApp.favorites));
+    console.log(tundraApp.favorites);
+
+    let currentProfile = tundraApp.profiles[tundraApp.profileIndex];
+
+    // verify
+    if (!tundraApp.isAlreadyExist(currentProfile)) {
+      tundraApp.favorites.push(currentProfile);
+      localStorage.setItem('tundra', JSON.stringify(tundraApp.favorites));
+    }
 
     if (tundraApp.isMoreProfile()) {
       tundraApp.putdownProfile();
       tundraApp.profileIndex++;
       tundraApp.showProfile();
     }
+  },
+
+  checkLocalStorage: function (key) {
+    let isExistLocalStorage = localStorage.getItem(key);
+    if (isExistLocalStorage) {
+      tundraApp.favorites = JSON.parse(isExistLocalStorage);
+    }
+  },
+
+  isAlreadyExist: function(currentProfile) {
+    // alreadySaved.filter()
+    tundraApp.favorites.filter(function (favProfile) {
+      if(favProfile.first != currentProfile.first && favProfile.last != currentProfile.last) {
+        return true;
+      }
+
+      return false;
+    });
+
+
+
   },
 
   deleteProfile: function () {
@@ -148,6 +174,52 @@ let tundraApp = {
     }
 
     return true;
+  },
+
+  showFavorites: function () {
+    let favoritePage       = document.querySelector('#favorite-page');
+    favoritePage.innerHTML = '';
+
+    let favoriteContainer       = document.createElement('ul');
+    favoriteContainer.className = 'favorite-container';
+
+    let favorites = tundraApp.favorites;
+    if (favorites.length > 0) {
+      favorites.forEach(function (profile, index) {
+        let li = document.createElement('li');
+        li.className = 'table-view-cell media';
+
+        let span = document.createElement('span');
+        span.className = 'media-object pull-left icon icon-trash';
+        span.id = index;
+        span.addEventListener('click', tundraApp.deleteFavorite);
+
+        let div = document.createElement('div');
+        div.className = 'media-body';
+        div.style.display = 'flex';
+        div.innerHTML = profile.first + ' ' + profile.last;
+
+        let img = document.createElement('img');
+        img.src = tundraApp.imgUrl + profile.avatar;
+        img.width = 50;
+        img.height = 50;
+        img.style.display = 'inline';
+
+        li.appendChild(img);
+        li.appendChild(span);
+        li.appendChild(div);
+
+        favoriteContainer.appendChild(li);
+        favoritePage.appendChild(favoriteContainer);
+      });
+    }
+
+
+    console.log(tundraApp.favorites);
+  },
+  
+  deleteFavorite: function () {
+    
   }
 };
 
@@ -167,27 +239,3 @@ function status(response) {
 function json(response) {
   return response.json()
 }
-
-
-// init: function () {
-//   // let pushScript = document.createElement('script');
-//   // pushScript.setAttribute('src', this.pushSrc);
-//   //
-//   // let ratScript = document.createElement('script');
-//   // ratScript.setAttribute('src', this.ratSrc);
-//   //
-//   // let zingScript = document.createElement('script');
-//   // zingScript.setAttribute('src', this.zingSrc);
-//   tundraApp.loadScripts();
-// },
-// loadScripts: function() {
-//   tundraApp.dependencies.forEach(function (depedency) {
-//
-//     let script = document.createElement('script');
-//     script.setAttribute('src', depedency);
-//     document.body.appendChild(script);
-//     script.addEventListener('load', function () {
-//       tundraApp.loadCount++;
-//     });
-//   });
-// }
