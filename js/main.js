@@ -12,9 +12,10 @@ let tundraApp = {
   url: 'http://griffis.edumedia.ca/mad9022/tundra/get.profiles.php?gender=',
   profiles: [],
   profileIndex: 0,
+  favorites: [],
   imgUrl: null,
   dependencies: ['lib/push.js', 'lib/ratchet.min.js', 'lib/zingtouch-1.0.0.min.js'],
-  loadCount: 0,
+  swipeCount: 0,
 
   // Step 2: define init function to start the program
   init: function () {
@@ -84,7 +85,7 @@ let tundraApp = {
     let profilePage       = document.querySelector('#profile-page');
     profilePage.appendChild(profileCard);
 
-    tundraApp.profileIndex++;
+    // tundraApp.profileIndex++;
     tundraApp.addGesture();
   },
 
@@ -97,15 +98,56 @@ let tundraApp = {
     activeRegion.bind(gestureObject, 'pan', function (ev) {
       activeRegion.unregister('pan');
 
+      // Devide by degrees: right or left
       let touchedDegree = ev.detail.data[0];
       console.log(touchedDegree);
       if (touchedDegree.directionFromOrigin > 270 || touchedDegree.directionFromOrigin < 90) {
+        // tundraApp.checkSwipeCount();
         console.log('right');
+        // add it to local storage
+        tundraApp.saveProfile();
+
       } else {
+        // tundraApp.checkSwipeCount();
         console.log('left');
+        // delete it
+        tundraApp.deleteProfile();
       }
     });
+  },
 
+  saveProfile: function () {
+    tundraApp.favorites.push(tundraApp.profiles[tundraApp.profileIndex]);
+    localStorage.setItem('tundra', JSON.stringify(tundraApp.favorites));
+
+    if (tundraApp.isMoreProfile()) {
+      tundraApp.putdownProfile();
+      tundraApp.profileIndex++;
+      tundraApp.showProfile();
+    }
+  },
+
+  deleteProfile: function () {
+    if (tundraApp.isMoreProfile()) {
+      tundraApp.putdownProfile();
+      tundraApp.profiles.splice(tundraApp.profileIndex, 1);
+      console.log(tundraApp.profiles);
+      tundraApp.showProfile();
+    }
+  },
+
+  putdownProfile: function () {
+    let profilePage = document.querySelector('#profile-page');
+    profilePage.removeChild(document.querySelector('.profile-card'));
+  },
+
+  isMoreProfile: function () {
+    if (tundraApp.profiles.length === 1 || tundraApp.profileIndex === tundraApp.profiles.length-1) {
+      alert('no more!');
+      return false;
+    }
+
+    return true;
   }
 };
 
