@@ -186,23 +186,23 @@ let tundraApp = {
     let favorites = tundraApp.favorites;
     if (favorites.length > 0) {
       favorites.forEach(function (profile, index) {
-        let li = document.createElement('li');
-        li.className = 'table-view-cell media';
+        let li            = document.createElement('li');
+        li.className      = 'table-view-cell media';
 
-        let span = document.createElement('span');
-        span.className = 'media-object pull-left icon icon-trash';
-        span.id = index;
+        let span          = document.createElement('span');
+        span.className    = 'media-object pull-left icon icon-trash';
+        span.id           = index;
         span.addEventListener('click', tundraApp.deleteFavorite);
 
-        let div = document.createElement('div');
-        div.className = 'media-body';
+        let div           = document.createElement('div');
+        div.className     = 'media-body';
         div.style.display = 'flex';
-        div.innerHTML = profile.first + ' ' + profile.last;
+        div.innerHTML     = profile.first + ' ' + profile.last;
 
-        let img = document.createElement('img');
-        img.src = tundraApp.imgUrl + profile.avatar;
-        img.width = 50;
-        img.height = 50;
+        let img           = document.createElement('img');
+        img.src           = tundraApp.imgUrl + profile.avatar;
+        img.width         = 50;
+        img.height        = 50;
         img.style.display = 'inline';
 
         li.appendChild(img);
@@ -218,8 +218,19 @@ let tundraApp = {
     console.log(tundraApp.favorites);
   },
   
-  deleteFavorite: function () {
-    
+  deleteFavorite: function (ev) {
+    ev.preventDefault();
+
+    let profile = ev.target.parentNode;
+    let profileContainer = profile.parentNode;
+    let index = Array.prototype.indexOf.call(profileContainer.children, profile);
+
+    tundraApp.favorites.splice(index, 1);
+    localStorage.setItem('tundra', JSON.stringify(tundraApp.favorites));
+
+    let favoriteContainer = document.querySelector('.favorite-container');
+    favoriteContainer.removeChild(profile);
+
   }
 };
 
@@ -239,3 +250,10 @@ function status(response) {
 function json(response) {
   return response.json()
 }
+
+// reference from a post on StackOverFlow: http://stackoverflow.com/questions/5913927/get-child-node-index
+// how to find index of a target element with less code
+// var child = document.getElementById('my_element');
+// var parent = child.parentNode;
+// // The equivalent of parent.children.indexOf(child)
+// var index = Array.prototype.indexOf.call(parent.children, child);
