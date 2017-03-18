@@ -6,7 +6,45 @@
 //                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-// Step 1: define one global variable with key-value pairs, including functions along the way
+
+/**
+ * Instruction prepared by Min Kim for Tundra assignment (a MVP copy of Tinder with only swiping, saving, and deleting function)
+ *
+ *
+ * Step 1: Help students to write pseudo-code on their own.
+ *
+ * Step 2: Break down application logic.
+ *          a. init:              tab-event listners, check if local storage already exists, get profile data
+ *          b. tabNavigation:     navigate to profile page or favorite page.
+ *          c. getProfile:        send a request to the server for profile data
+ *          d. showProfile:       display a profile card with html skeletons
+ *          e. addGesture:        add swiping gesture with ZingTouch library
+ *          f. saveProfile:       save swiped right profile in local storage and replace the current profile with new one
+ *          g. checkLocalStorage: check local storage if there is any profile that's already saved
+ *          h. isAlreadyExist:    check if the swiped-right profile already exists in the local storage
+ *          i. deleteProfile:     delete the profile from a global array
+ *          j. putdownProfile:    replace the current profile with new one
+ *          k. isMoreProfile:     check if there are more profiles to display
+ *          l. showFavorites:     display saved favorite profiles
+ *          m. deleteFavorite:    delete the selected profile from the local storage and put it down from HTML DOM
+ *
+ * Step 3: Explain why modular programming in JavaScript and how it will be related to the next semester courses.
+ *
+ * Step 4: Help them structure the shell of their functions.
+ *
+ * Step 5: Check if they are struggling with code and help them trouble-shoot.
+ *
+ * Step 6: Inspect their code with the emphasis on descriptive variables and indentation.
+ *
+ * Step 7: Give them some extra challenges if students are quite progressive with this assignment.
+ *
+ *
+ * */
+
+
+
+
+// define one global variable with key-value pairs, including functions along the way
 let tundraApp = {
   gender: '',
   url: 'http://griffis.edumedia.ca/mad9022/tundra/get.profiles.php?gender=',
@@ -17,22 +55,17 @@ let tundraApp = {
   dependencies: ['lib/push.js', 'lib/ratchet.min.js', 'lib/zingtouch-1.0.0.min.js'],
   swipeCount: 0,
 
-  // Step 2: define init function to start the program
+  // a. init: tab-event listners, check if local storage already exists, get profile data
   init: function () {
 
-    // Step 4: add event listners to tabs with pagination functions defined in the step 3
     document.querySelector('#profTab').addEventListener('click', tundraApp.tabPagination);
     document.querySelector('#favTab').addEventListener('click', tundraApp.tabPagination);
 
-
-    // Step 6: call the function you defined in Step 5 to fetch profile data
     tundraApp.checkLocalStorage('tundra', tundraApp.favorites);
     tundraApp.getProfiles();
-    console.log(tundraApp.profiles);
-
   },
 
-  // Step 3: define a function for pagination
+  // b. tabNavigation: navigate to profile page or favorite page.
   tabPagination: function (ev) {
     ev.preventDefault();
 
@@ -50,7 +83,7 @@ let tundraApp = {
     }
   },
 
-  // Step 5: define a function that fetches data from server and puts its valid response data into an array
+  // c. getProfile: send a request to the server for profile data
   getProfiles: function () {
     fetch(tundraApp.url + tundraApp.gender)
       .then(status)
@@ -58,8 +91,6 @@ let tundraApp = {
       .then(function(data) {
         tundraApp.imgUrl   = decodeURIComponent(data.imgBaseURL);
         tundraApp.profiles = data.profiles;
-        
-        // Step  : define a function to display profiles and call it
         tundraApp.showProfile();
       })
       .catch(function (err) {
@@ -68,8 +99,10 @@ let tundraApp = {
 
   },
 
-  // Step 5: define a function to add gestures to each profile card
+  // d. showProfile: display a profile card with html skeletons
   showProfile: function () {
+
+    // skeletons for a single profile card
     let profileCard       = document.createElement('div');
     profileCard.className = 'profile-card';
 
@@ -88,11 +121,10 @@ let tundraApp = {
     let profilePage       = document.querySelector('#profile-page');
     profilePage.appendChild(profileCard);
 
-    // tundraApp.profileIndex++;
     tundraApp.addGesture();
   },
 
-  // Step 6: define a function to add gesture 
+  // e. addGesture: add swiping gesture with ZingTouch library
   addGesture: function () {
     let profilePage   = document.querySelector('#profile-page');
     let activeRegion  = new ZingTouch.Region(profilePage);
@@ -100,31 +132,33 @@ let tundraApp = {
     activeRegion.bind(gestureObject, 'pan', function (ev) {
       activeRegion.unregister('pan');
 
-      // Divided by degrees: right or left
+      // divided by degrees: right or left
       let touchedDegree = ev.detail.data[0];
       if (touchedDegree.directionFromOrigin > 270 || touchedDegree.directionFromOrigin < 90) {
 
-        // Swiped Right
+        // swiped right
         tundraApp.saveProfile();
       } else {
 
-        // Swiped Left
+        // swiped left
         tundraApp.deleteProfile();
       }
     });
   },
 
+  // f. saveProfile: save swiped right profile in local storage and replace the current profile with new one
   saveProfile: function () {
     console.log(tundraApp.favorites);
 
     let currentProfile = tundraApp.profiles[tundraApp.profileIndex];
 
-    // verify
+    // verify if the current profile already exists in local storage
     if (!tundraApp.isAlreadyExist(currentProfile)) {
       tundraApp.favorites.push(currentProfile);
       localStorage.setItem('tundra', JSON.stringify(tundraApp.favorites));
     }
 
+    // check if there are more profiles to display before replacing the current profile with new one
     if (tundraApp.isMoreProfile()) {
       tundraApp.putdownProfile();
       tundraApp.profileIndex++;
@@ -132,6 +166,7 @@ let tundraApp = {
     }
   },
 
+  // g. checkLocalStorage: check local storage if there is any profile that's already saved
   checkLocalStorage: function (key) {
     let isExistLocalStorage = localStorage.getItem(key);
     if (isExistLocalStorage) {
@@ -139,8 +174,8 @@ let tundraApp = {
     }
   },
 
+  // h. isAlreadyExist: check if the swiped-right profile already exists in the local storage
   isAlreadyExist: function(currentProfile) {
-    // alreadySaved.filter()
     tundraApp.favorites.filter(function (favProfile) {
       if(favProfile.first != currentProfile.first && favProfile.last != currentProfile.last) {
         return true;
@@ -153,6 +188,7 @@ let tundraApp = {
 
   },
 
+  // i. deleteProfile: delete the profile from a global array
   deleteProfile: function () {
     if (tundraApp.isMoreProfile()) {
       tundraApp.putdownProfile();
@@ -162,20 +198,23 @@ let tundraApp = {
     }
   },
 
+  // j. putdownProfile: replace the current profile with new one
   putdownProfile: function () {
     let profilePage = document.querySelector('#profile-page');
     profilePage.removeChild(document.querySelector('.profile-card'));
   },
 
+  // k. isMoreProfile: check if there are more profiles to display
   isMoreProfile: function () {
     if (tundraApp.profiles.length === 1 || tundraApp.profileIndex === tundraApp.profiles.length-1) {
-      alert('no more!');
+      alert('No More Profile to Show!');
       return false;
     }
 
     return true;
   },
 
+  // l. showFavorites: display saved favorite profiles
   showFavorites: function () {
     let favoritePage       = document.querySelector('#favorite-page');
     favoritePage.innerHTML = '';
@@ -186,6 +225,7 @@ let tundraApp = {
     let favorites = tundraApp.favorites;
     if (favorites.length > 0) {
       favorites.forEach(function (profile, index) {
+        // skeletons for a single favorite profile
         let li            = document.createElement('li');
         li.className      = 'table-view-cell media';
 
@@ -213,16 +253,17 @@ let tundraApp = {
         favoritePage.appendChild(favoriteContainer);
       });
     }
-
-
-    console.log(tundraApp.favorites);
   },
-  
+
+  // m. deleteFavorite: delete the selected profile from the local storage and put it down from HTML DOM
   deleteFavorite: function (ev) {
     ev.preventDefault();
 
     let profile = ev.target.parentNode;
     let profileContainer = profile.parentNode;
+
+    // getting index of the selected profile for removing a HTML node and an element in the Favorite array
+    // refered from a StackOverFlow post: http://stackoverflow.com/questions/5913927/get-child-node-index
     let index = Array.prototype.indexOf.call(profileContainer.children, profile);
 
     tundraApp.favorites.splice(index, 1);
@@ -230,7 +271,6 @@ let tundraApp = {
 
     let favoriteContainer = document.querySelector('.favorite-container');
     favoriteContainer.removeChild(profile);
-
   }
 };
 
