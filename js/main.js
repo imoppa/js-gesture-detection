@@ -274,6 +274,7 @@ let tundraApp = {
   }
 };
 
+// run the app
 document.addEventListener('DOMContentLoaded', tundraApp.init);
 
 
